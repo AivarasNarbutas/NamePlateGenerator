@@ -1,0 +1,307 @@
+<Window x:Class="NamePlateApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:vm="clr-namespace:NamePlateApp.ViewModels"
+        xmlns:conv="clr-namespace:NamePlateApp.Converters"
+        xmlns:ctl="clr-namespace:NamePlateApp.Controls"
+        xmlns:beh="clr-namespace:NamePlateApp.Behaviors"
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        Title="Name Plate Generator" WindowState="Maximized" Width="1280" Height="820" MinWidth="900" MinHeight="600">
+    <Window.Resources>
+        <conv:PreviewSceneConverter x:Key="Scene"/>
+        <conv:FontFamilyConverter x:Key="FontFam"/>
+        <conv:BoolToVisibilityConverter x:Key="Vis"/>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Padding" Value="3,2"/>
+            <Setter Property="beh:TextBoxBehaviors.CommitOnEnter" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip" Value="{Binding (Validation.Errors)/ErrorContent, RelativeSource={RelativeSource Self}}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ComboBox"><Setter Property="Margin" Value="0,2"/></Style>
+        <Style TargetType="CheckBox"><Setter Property="Margin" Value="0,3"/></Style>
+        <Style TargetType="Button"><Setter Property="Padding" Value="10,4"/><Setter Property="Margin" Value="0,2,6,2"/></Style>
+        <Style TargetType="GroupBox"><Setter Property="Margin" Value="0,0,0,8"/><Setter Property="Padding" Value="6,4"/></Style>
+        <Style x:Key="Lbl" TargetType="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Margin" Value="0,0,8,0"/></Style>
+        <Style x:Key="Lbl2" TargetType="TextBlock" BasedOn="{StaticResource Lbl}"><Setter Property="Margin" Value="10,0,8,0"/></Style>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF6B7280"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="0,2,0,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="460"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TabControl Grid.Column="0" Margin="6,6,0,6">
+            <!-- ======================= plate and text ======================= -->
+            <TabItem Header="Plate and text">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
+                    <StackPanel>
+                        <GroupBox Header="Plate (mm)">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <TextBlock Style="{StaticResource Lbl}" Text="Length"/>
+                                <TextBox Grid.Column="1" Text="{conv:NumberBinding Length}"/>
+                                <TextBlock Grid.Column="2" Style="{StaticResource Lbl2}" Text="Height"/>
+                                <TextBox Grid.Column="3" Text="{conv:NumberBinding Height}"/>
+                                <TextBlock Grid.Row="1" Style="{StaticResource Lbl}" Text="Thickness"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{conv:NumberBinding Thickness}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Chamfer"/>
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{conv:NumberBinding Chamfer}"/>
+                                <CheckBox Grid.Row="2" Grid.ColumnSpan="4" Content="Chamfer the short ends too" IsChecked="{Binding ChamferEnds}"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Text - select characters, then format them">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock Style="{StaticResource Lbl}" Text="Text on"/>
+                                    <ComboBox Width="90" ItemsSource="{Binding FaceOptions}" SelectedItem="{Binding Faces}"
+                                              ToolTip="Which side(s) of the plate get text"/>
+                                </StackPanel>
+                                <TextBlock Text="Front" FontWeight="SemiBold"/>
+                                <ctl:FormattedTextEditor Runs="{Binding FrontRuns}" FontNames="{Binding FontNames}"
+                                                         DefaultSize="{Binding TextSize}" DefaultBold="{Binding Bold}" DefaultItalic="{Binding Italic}">
+                                    <ctl:FormattedTextEditor.DefaultFontFamily>
+                                        <MultiBinding Converter="{StaticResource FontFam}"><Binding Path="FontFamily"/><Binding Path="FontFile"/></MultiBinding>
+                                    </ctl:FormattedTextEditor.DefaultFontFamily>
+                                </ctl:FormattedTextEditor>
+                                <TextBlock Text="Back (as you read it looking at the back)" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                                <CheckBox Content="Same text as the front" IsChecked="{Binding BackSameAsFront}"/>
+                                <TextBlock Style="{StaticResource Hint}" Text="{Binding BackTextHint}"
+                                           Visibility="{Binding BackTextHint, Converter={StaticResource Vis}}"/>
+                                <ctl:FormattedTextEditor Runs="{Binding BackRuns}" FontNames="{Binding FontNames}" IsEnabled="{Binding IsBackEditorEnabled}"
+                                                         DefaultSize="{Binding TextSize}" DefaultBold="{Binding Bold}" DefaultItalic="{Binding Italic}">
+                                    <ctl:FormattedTextEditor.DefaultFontFamily>
+                                        <MultiBinding Converter="{StaticResource FontFam}"><Binding Path="FontFamily"/><Binding Path="FontFile"/></MultiBinding>
+                                    </ctl:FormattedTextEditor.DefaultFontFamily>
+                                </ctl:FormattedTextEditor>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Default font (where no formatting is set)">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <TextBlock Style="{StaticResource Lbl}" Text="Family"/>
+                                <ComboBox Grid.Column="1" Grid.ColumnSpan="3" IsEditable="True" ItemsSource="{Binding FontNames}"
+                                          Text="{Binding FontFamily, UpdateSourceTrigger=LostFocus}" IsTextSearchEnabled="True"
+                                          beh:ComboBoxBehaviors.CommitTextOnPick="True"
+                                          ToolTip="Pick from the list, or type a name and press Enter">
+                                    <ComboBox.ItemsPanel><ItemsPanelTemplate><VirtualizingStackPanel/></ItemsPanelTemplate></ComboBox.ItemsPanel>
+                                    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" FontFamily="{Binding}" FontSize="14"/></DataTemplate></ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Grid.Row="1" Style="{StaticResource Lbl}" Text="File"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding FontFile}" ToolTip="Optional .ttf/.otf file; overrides the family"/>
+                                <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" Margin="6,0,0,0">
+                                    <Button Content="…" Command="{Binding BrowseFontFileCommand}" Padding="8,2" ToolTip="Choose a font file"/>
+                                    <Button Content="×" Command="{Binding ClearFontFileCommand}" Padding="8,2" ToolTip="Stop using the font file"/>
+                                </StackPanel>
+                                <CheckBox Grid.Row="2" Grid.ColumnSpan="2" Content="Bold" IsChecked="{Binding Bold}"/>
+                                <CheckBox Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Content="Italic" IsChecked="{Binding Italic}" Margin="10,3,0,3"/>
+                                <TextBlock Grid.Row="3" Style="{StaticResource Lbl}" Text="Size (mm)"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{conv:NumberBinding TextSize}" ToolTip="Font em height; capitals are about 70 % of it"/>
+                                <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Line spacing"/>
+                                <TextBox Grid.Row="3" Grid.Column="3" Text="{conv:NumberBinding LineSpacing}"/>
+                                <CheckBox Grid.Row="4" Grid.ColumnSpan="4" Content="Auto-fit to the plate (scales all text)" IsChecked="{Binding AutoFit}"/>
+                                <Button Grid.Row="5" Grid.ColumnSpan="4" HorizontalAlignment="Left" Content="Save as my default font" Command="{Binding SaveFontDefaultsCommand}"
+                                        ToolTip="New plates and Reset will start with this family, file, size, bold, italic and line spacing"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Placement (mm)">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <TextBlock Style="{StaticResource Lbl}" Text="Horizontal"/>
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding HAligns}" SelectedItem="{Binding HAlign}"/>
+                                <TextBlock Grid.Column="2" Style="{StaticResource Lbl2}" Text="Vertical"/>
+                                <ComboBox Grid.Column="3" ItemsSource="{Binding VAligns}" SelectedItem="{Binding VAlign}"/>
+                                <TextBlock Grid.Row="1" Style="{StaticResource Lbl}" Text="Lines"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding HAligns}" SelectedItem="{Binding LineAlign}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Edge margin"/>
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{conv:NumberBinding Margin}" ToolTip="Distance from the plate edge; at least chamfer + 0.4 mm is always kept"/>
+                                <TextBlock Grid.Row="2" Style="{StaticResource Lbl}" Text="Offset X"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{conv:NumberBinding OffsetX}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Offset Y"/>
+                                <TextBox Grid.Row="2" Grid.Column="3" Text="{conv:NumberBinding OffsetY}"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Text depth (mm)">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <TextBlock Style="{StaticResource Lbl}" Text="Mode"/>
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}"
+                                          ToolTip="Inlay: pocket + separate letters to press in. Engrave: pocket only. Emboss: raised letters, one body."/>
+                                <TextBlock Grid.Row="1" Style="{StaticResource Lbl}" Text="Pocket depth"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{conv:NumberBinding PocketDepth}" IsEnabled="{Binding UsesPocket}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Text height"/>
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{conv:NumberBinding TextHeight}" IsEnabled="{Binding UsesTextHeight}"
+                                         ToolTip="Letter body height (Inlay) or height above the surface (Emboss)"/>
+                                <TextBlock Grid.Row="2" Style="{StaticResource Lbl}" Text="Fit clearance"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{conv:NumberBinding Clearance}" IsEnabled="{Binding IsInlay}"
+                                         ToolTip="Inlay: letters are made this much smaller on every side (reference model: 0.08)"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Print gap"/>
+                                <TextBox Grid.Row="2" Grid.Column="3" Text="{conv:NumberBinding PrintGap}" ToolTip="Distance between objects in the 3MF"/>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ======================= holder ======================= -->
+            <TabItem Header="Holder">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
+                    <StackPanel>
+                        <GroupBox Header="Holder (stand)">
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <CheckBox Grid.ColumnSpan="4" Content="Make a holder (exported with the plate)" IsChecked="{Binding HolderEnabled}"/>
+                                <TextBlock Grid.Row="1" Style="{StaticResource Lbl}" Text="Clearance"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{conv:NumberBinding HolderClearance}" ToolTip="Gap between plate and slot on every side (reference: 0.025 mm)"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource Lbl2}" Text="Extra length"/>
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{conv:NumberBinding HolderExtraLength}" ToolTip="Holder length = plate length + this (negative = shorter)"/>
+                                <TextBlock Grid.Row="2" Style="{StaticResource Lbl}" Text="Template"/>
+                                <ComboBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding HolderTemplateOptions}" SelectedItem="{Binding SelectedHolderTemplate}"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="Apply" Command="{Binding ApplyHolderTemplateCommand}" HorizontalAlignment="Left" Margin="6,2,0,2"
+                                        ToolTip="Replace the profile points with the template"/>
+                                <TextBlock Grid.Row="3" Grid.ColumnSpan="4" Style="{StaticResource Hint}"
+                                           Text="The profile is the holder's cross-section, extruded over the plate length. Every point is measured from a plate face (X) and edge (Y), so the holder follows the plate when you change its thickness, height or length."/>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Profile (2D)">
+                            <StackPanel>
+                                <Border BorderBrush="#FFD1D5DB" BorderThickness="1" Height="330">
+                                    <ctl:HolderProfileEditor x:Name="ProfileEditor" Points="{Binding HolderPoints}" SelectedPoint="{Binding SelectedHolderPoint}"
+                                                             PlateThickness="{Binding EffectiveThickness}" PlateHeight="{Binding EffectiveHeight}"/>
+                                </Border>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Click a point to select it; drag the red (X) or green (Y) arrow to move it. Right-drag pans, wheel zooms."/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Profile points (mm)">
+                            <StackPanel>
+                                <Grid Margin="4,0,24,2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <TextBlock Text="#" Foreground="Gray"/>
+                                    <TextBlock Grid.Column="1" Text="X from" Foreground="Gray"/>
+                                    <TextBlock Grid.Column="2" Text="X" Foreground="Gray"/>
+                                    <TextBlock Grid.Column="3" Text="Y from" Foreground="Gray"/>
+                                    <TextBlock Grid.Column="4" Text="Y" Foreground="Gray"/>
+                                </Grid>
+                                <ListBox ItemsSource="{Binding HolderPoints}" SelectedItem="{Binding SelectedHolderPoint}" MaxHeight="300"
+                                         HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                    <ListBox.ItemContainerStyle>
+                                        <!-- editing a value in a row selects that row (Add/Delete and the 2D arrows act on it) -->
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="beh:ListBoxItemBehaviors.SelectOnFocusWithin" Value="True"/>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:HolderPointViewModel}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Number}" VerticalAlignment="Center"/>
+                                                <ComboBox Grid.Column="1" Margin="0,1,4,1" SelectedItem="{Binding XFrom}"
+                                                          ItemsSource="{Binding DataContext.XAnchors, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                                <TextBox Grid.Column="2" Margin="0,1,8,1" Text="{conv:NumberBinding XOffset}"
+                                                         ToolTip="mm from that face; negative = in front of the front face, positive = behind it"/>
+                                                <ComboBox Grid.Column="3" Margin="0,1,4,1" SelectedItem="{Binding YFrom}"
+                                                          ItemsSource="{Binding DataContext.YAnchors, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                                <TextBox Grid.Column="4" Margin="0,1,0,1" Text="{conv:NumberBinding YOffset}"
+                                                         ToolTip="mm from that edge; negative = below it, positive = above it"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <WrapPanel Margin="0,4,0,0">
+                                    <Button Content="Add point" Command="{Binding AddHolderPointCommand}" ToolTip="Insert a point halfway to the next one, after the selected point"/>
+                                    <Button Content="Delete point" Command="{Binding DeleteHolderPointCommand}" ToolTip="Delete the selected point (at least 3 remain)"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ======================= files ======================= -->
+            <TabItem Header="Files">
+                <StackPanel Margin="6">
+                    <GroupBox Header="Project">
+                        <WrapPanel>
+                            <Button Content="Import…" Command="{Binding ImportCommand}" ToolTip="Open a .nameplate.json or a .3mf exported by this program"/>
+                            <Button Content="Reset" Command="{Binding ResetCommand}"/>
+                        </WrapPanel>
+                    </GroupBox>
+                    <GroupBox Header="Export for printing">
+                        <StackPanel>
+                            <WrapPanel>
+                                <CheckBox Content="3MF (all parts)" IsChecked="{Binding Export3Mf}" Margin="0,3,12,3"/>
+                                <CheckBox Content="STL (one per part)" IsChecked="{Binding ExportStl}" Margin="0,3,12,3"/>
+                                <CheckBox Content="Project (.json)" IsChecked="{Binding ExportProject}" Margin="0,3,12,3"/>
+                            </WrapPanel>
+                            <Button Content="Export…" Command="{Binding ExportCommand}" FontWeight="SemiBold" HorizontalAlignment="Left"/>
+                            <TextBlock Style="{StaticResource Hint}"
+                                       Text="Parts: the plate, the loose letters (Inlay) and the holder. The holder is exported standing on its end so it prints without supports."/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <WrapPanel Margin="8,8,8,4">
+                <Button Content="Front" Click="ViewFront_Click"/>
+                <Button Content="Back" Click="ViewBack_Click"/>
+                <Button Content="Iso" Click="ViewIso_Click"/>
+                <Button Content="Fit" Click="ViewFit_Click"/>
+                <CheckBox Content="Show holder" IsChecked="{Binding ShowHolder}" Margin="10,6,0,0"
+                          ToolTip="Preview only. Whether the holder is exported is set on the Holder tab ('Make a holder')."/>
+                <CheckBox Content="Print layout" IsChecked="{Binding ShowPrintLayout}" Margin="10,6,0,0"
+                          ToolTip="Show the objects as laid out in the 3MF instead of assembled"/>
+                <TextBlock Margin="16,6,0,0" Foreground="Gray" Text="Right-drag: rotate   Middle-drag: pan   Wheel: zoom"/>
+            </WrapPanel>
+            <helix:HelixViewport3D Grid.Row="1" x:Name="View" Margin="8,0,8,0" Background="#FFEDEFF2"
+                                   CameraMode="Inspect" CameraRotationMode="Trackball" ModelUpDirection="0,0,1"
+                                   ShowViewCube="True" ShowCoordinateSystem="False" IsHeadLightEnabled="True"
+                                   ZoomExtentsWhenLoaded="False" ClipToBounds="True">
+                <helix:DefaultLights/>
+                <ModelVisual3D>
+                    <ModelVisual3D.Content>
+                        <MultiBinding Converter="{StaticResource Scene}">
+                            <Binding Path="Model"/><Binding Path="ShowPrintLayout"/><Binding Path="ShowHolder"/>
+                        </MultiBinding>
+                    </ModelVisual3D.Content>
+                </ModelVisual3D>
+            </helix:HelixViewport3D>
+            <StackPanel Grid.Row="2" Margin="10,6,10,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Text="updating…" Foreground="Gray" Margin="12,0,0,0"
+                               Visibility="{Binding IsBuilding, Converter={StaticResource Vis}}"/>
+                    <TextBlock Text="{Binding Status}" TextWrapping="Wrap"/>
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Warnings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate><TextBlock Text="{Binding StringFormat=⚠ {0}}" Foreground="Firebrick" TextWrapping="Wrap"/></DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
