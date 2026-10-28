@@ -4,6 +4,8 @@ Generates a name plate and its text as printable meshes, modelled on the referen
 "Name plate with a holder" (blankplate.step, 175 x 40 x 2.975 mm, 0.5 mm chamfer on the long edges,
 text pocket 1.5 mm, letters inset by 0.08 mm and pressed into the plate).
 
+**New here? Read the [setup and user guide](docs/USER_GUIDE.md).**
+
 The 3D preview uses HelixToolkit.Wpf (right-drag rotate, middle-drag pan, wheel zoom, view cube).
 
 Build / run (needs the .NET 8 SDK or newer, Windows):
