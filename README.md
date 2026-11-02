@@ -13,6 +13,8 @@ Build / run (needs the .NET 8 SDK or newer, Windows):
     dotnet run --project src/NamePlate.App
     dotnet run --project tests/NamePlate.Tests      # all checks; exit code 0 = pass
 
+Like it? [Buy me a coffee](https://buymeacoffee.com/AivarasNarbutas) - the same link is in the program's bottom bar.
+
 ## Structure (MVVM)
 - `src/NamePlate.Core` - model: settings, text outlines, mesh building, STL/3MF/JSON files. No UI.
 - `src/NamePlate.App`

@@ -30,5 +30,12 @@ public partial class MainWindow : Window
     private void ViewFront_Click(object sender, RoutedEventArgs e) => LookAlong(new Vector3D(0, 0, -1), new Vector3D(0, 1, 0));
     private void ViewBack_Click(object sender, RoutedEventArgs e) => LookAlong(new Vector3D(0, 0, 1), new Vector3D(0, 1, 0));
     private void ViewIso_Click(object sender, RoutedEventArgs e) => LookAlong(new Vector3D(-0.35, 0.75, -0.7), new Vector3D(0, 0, 1));
+    private void Coffee_Navigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true }); }
+        catch (Exception) { /* no browser available: nothing useful to do */ }
+        e.Handled = true;
+    }
+
     private void ViewFit_Click(object sender, RoutedEventArgs e) => View.ZoomExtents(200);
 }
