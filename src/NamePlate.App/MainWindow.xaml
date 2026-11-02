@@ -9,7 +9,7 @@
         xmlns:ctl="clr-namespace:NamePlateApp.Controls"
         xmlns:beh="clr-namespace:NamePlateApp.Behaviors"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
-        Title="Name Plate Generator" WindowState="Maximized" Width="1280" Height="820" MinWidth="900" MinHeight="600">
+        Title="Name Plate Generator" Icon="Assets/app.ico" WindowState="Maximized" Width="1280" Height="820" MinWidth="900" MinHeight="600">
     <Window.Resources>
         <conv:PreviewSceneConverter x:Key="Scene"/>
         <conv:FontFamilyConverter x:Key="FontFam"/>

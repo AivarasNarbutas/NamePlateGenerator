@@ -6,12 +6,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>NamePlateGenerator</AssemblyName>
+    <ApplicationIcon>Assets/app.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\NamePlate.Core\NamePlate.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HelixToolkit.Wpf" Version="3.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets/app.ico" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="NamePlate.Tests" />
