@@ -1,7 +1,7 @@
 # Name Plate Generator (C# / WPF)
 
 Generates a name plate and its text as printable meshes, modelled on the reference
-"Name plate with a holder" (blankplate.step, 175 x 40 x 2.975 mm, 0.5 mm chamfer on the long edges,
+"[Name plate with a holder](https://www.printables.com/model/1017709-name-plate-with-a-holder)" on Printables (blankplate.step, 175 x 40 x 2.975 mm, 0.5 mm chamfer on the long edges,
 text pocket 1.5 mm, letters inset by 0.08 mm and pressed into the plate).
 
 **New here? Read the [setup and user guide](docs/USER_GUIDE.md).**
