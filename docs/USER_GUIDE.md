@@ -9,10 +9,26 @@ pressed into the pocket (so a single-colour printer can make a two-colour plate)
 
 ## 1. Setup
 
-**Requirements:** Windows 10 or 11. Nothing else is needed to *use* a published copy; to build from source you
-need the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or newer.
+**Requirements:** Windows 10 or 11. Nothing else needs to be installed to use the downloaded program.
 
-### Option A - run from source (developers)
+### Option A - download and run (recommended, no technical knowledge needed)
+
+1. Open the [Releases page](https://github.com/AivarasNarbutas/NamePlateGenerator/releases/latest).
+2. Under **Assets**, click the file named **NamePlateGenerator-v...-win-x64.zip** to download it
+   (it is about 60-160 MB, so it may take a minute).
+3. Open your **Downloads** folder, right-click the zip file and choose **Extract All...**, then click **Extract**.
+   Do not run the program from inside the zip - it will not start properly.
+4. Open the new folder and double-click **NamePlateGenerator.exe**. The program opens. You can move the folder
+   anywhere (for example to the Desktop) and right-click the `.exe` > **Send to > Desktop (create shortcut)**.
+
+**If Windows shows a blue "Windows protected your PC" window:** this appears for programs from small publishers
+that Windows has not seen before. Click **More info**, then **Run anyway**.
+
+To update later, download the newest zip the same way and use the new folder. Your old folder can be deleted.
+
+### Option B - run from source (developers)
+
+You need the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or newer.
 
 ```
 git clone https://github.com/AivarasNarbutas/NamePlateGenerator.git
@@ -22,7 +38,7 @@ dotnet run --project src/NamePlate.App
 
 The first run downloads two small packages (HelixToolkit, Clipper2, LibTess) from nuget.org.
 
-### Option B - make a copy that runs without the .NET SDK
+### Option C - make a copy that runs without the .NET SDK
 
 ```
 dotnet publish src/NamePlate.App -c Release -r win-x64 --self-contained -o publish
