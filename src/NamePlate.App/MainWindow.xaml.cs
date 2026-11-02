@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
@@ -13,10 +14,15 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = vm;
+        Title += $" v{AppVersion}";
         vm.FitViewRequested += (_, _) => Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, () => View.ZoomExtents(200));
         vm.HolderProfileReset += (_, _) => Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, () => ProfileEditor.Fit());
         Loaded += (_, _) => LookAlong(new Vector3D(0, 0, -1), new Vector3D(0, 1, 0));
     }
+
+    private static string AppVersion =>
+        Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion.Split('+')[0] ?? "?";
 
     /// <summary>Sets the viewing direction, then frames everything.</summary>
     private void LookAlong(Vector3D look, Vector3D up)
